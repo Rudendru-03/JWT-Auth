@@ -8,18 +8,28 @@ module.exports.login_get = (req, res) => {
 };
 module.exports.signup_post = async (req, res) => {
   const { email, password, username } = req.body;
+
+  // Validate input
+  if (!username || !email || !password) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
   try {
+    // Use Sequelize's create method to insert data
     const newUser = await User.create({
-      username,
-      email,
-      password,
+      username: username,
+      email: email,
+      password: password, // Make sure this is hashed before storing
     });
+
     res
       .status(201)
       .json({ message: "User created successfully", user: newUser });
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(400).json({ error: "Failed to create user" });
+
+    // Return specific error message
+    res.status(400).json({ error: error.message || "Failed to create user" });
   }
 };
 module.exports.login_post = (req, res) => {
